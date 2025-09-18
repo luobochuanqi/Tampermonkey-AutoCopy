@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         题目与选项自动复制工具
 // @namespace    http://tampermonkey.net/
-// @version      1.0
+// @version      1.1
 // @description  自动识别页面题目和选项，点击下一题后复制到剪贴板
 // @author       ChatECNU
 // @match        https://js.zhixinst.com/exam/exam*
@@ -44,17 +44,16 @@
             return;
         }
 
-        // 移除可能已存在的事件监听器
-        nextButton.replaceWith(nextButton.cloneNode(true));
-        const newNextButton = document.querySelector(config.nextButtonSelector);
+        // 移除可能已存在的事件监听器（避免重复绑定）
+        nextButton.removeEventListener('click', handleNextButtonClick);
+        // 添加点击事件监听，使用 {capture: true} 确保在默认行为前触发
+        nextButton.addEventListener('click', handleNextButtonClick, {capture: true});
 
-        // 添加点击事件监听
-        newNextButton.addEventListener('click', handleNextButtonClick);
         console.log('已成功监听下一题按钮');
     }
 
     // 处理下一题按钮点击事件
-    function handleNextButtonClick() {
+    function handleNextButtonClick(event) {
         console.log('检测到下一题按钮点击，等待新题目加载...');
 
         // 设置观察器来检测题目区域的变化
