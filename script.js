@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         题目与选项复制工具（右侧按钮版）
 // @namespace    http://tampermonkey.net/
-// @version      1.2
-// @description  在页面右侧添加复制按钮，点击后复制题目和选项到剪贴板
+// @version      1.3
+// @description  在页面右侧添加复制按钮，点击后复制题目和选项到剪贴板，并添加AI提示词
 // @author       ChatECNU
 // @match        https://js.zhixinst.com/exam/exam*
 // @grant        GM_setClipboard
@@ -64,6 +64,10 @@
             font-family: Arial, sans-serif;
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
             transition: opacity 0.3s;
+        }
+        
+        .tm-error {
+            background: #f44336 !important;
         }
     `);
 
@@ -152,6 +156,14 @@
         options.forEach(option => {
             formattedText += `${option.letter}. ${option.text}\n`;
         });
+
+        // 添加AI提示词
+        formattedText += "\n\n请根据以上题目和选项，输出一个JSON对象，包含以下字段：\n" +
+        "- final_option: 字符型，表示最终选项\n" +
+        "- estimated_accuracy: 整数型，表示估测的正确率(0-100)\n" +
+        "- source: 字符串型，表示依据的信息来源\n" +
+        "- suggest_direct_select: 布尔型，表示是否建议直接选择该选项\n" +
+        "- steps: 字符串型，表示手动查找信息做题的步骤(请用序号标出，简洁通俗易懂，便于搜索)";
 
         return formattedText;
     }
