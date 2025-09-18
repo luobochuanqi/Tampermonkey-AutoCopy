@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         题目与选项复制工具（右侧按钮版）
 // @namespace    http://tampermonkey.net/
-// @version      1.3
+// @version      1.4
 // @description  在页面右侧添加复制按钮，点击后复制题目和选项到剪贴板，并添加AI提示词
 // @author       ChatECNU
 // @match        https://js.zhixinst.com/exam/exam*
@@ -42,16 +42,16 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
             transition: all 0.3s ease;
         }
-        
+
         #tm-copy-button:hover {
             background-color: #45a049;
             transform: translateY(-50%) scale(1.05);
         }
-        
+
         #tm-copy-button:active {
             transform: translateY(-50%) scale(0.95);
         }
-        
+
         #tm-copy-message {
             position: fixed;
             top: 20px;
@@ -65,7 +65,7 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
             transition: opacity 0.3s;
         }
-        
+
         .tm-error {
             background: #f44336 !important;
         }
@@ -97,7 +97,7 @@
 
         // 添加到页面
         document.body.appendChild(copyButton);
-        
+
         console.log('复制按钮已添加到页面右侧');
     }
 
@@ -151,19 +151,23 @@
 
     // 格式化题目和选项内容
     function formatContent(question, options) {
-        let formattedText = `题目: ${question}\n\n选项:\n`;
+        let formattedText = `## 题目\n${question}\n\n## 选项\n`;
 
         options.forEach(option => {
-            formattedText += `${option.letter}. ${option.text}\n`;
+            formattedText += `**${option.letter}.** ${option.text}\n`;
         });
 
-        // 添加AI提示词
-        formattedText += "\n\n请根据以上题目和选项，输出一个JSON对象，包含以下字段：\n" +
-        "- final_option: 字符型，表示最终选项\n" +
-        "- estimated_accuracy: 整数型，表示估测的正确率(0-100)\n" +
-        "- source: 字符串型，表示依据的信息来源\n" +
-        "- suggest_direct_select: 布尔型，表示是否建议直接选择该选项\n" +
-        "- steps: 字符串型，表示手动查找信息做题的步骤(请用序号标出，简洁通俗易懂，便于搜索)";
+        // 更新AI提示词为Markdown格式
+        formattedText += "\n\n## AI分析要求\n" +
+        "请根据以上题目和选项，以Markdown格式输出分析结果，包含以下内容：\n\n" +
+        "### 最终答案\n- 选项标识\n- 估测正确率(0-100%)\n\n" +
+        "### 信息来源\n- 知识领域\n- 参考依据\n\n" +
+        "### 答题建议\n- 是否建议直接选择\n- 注意事项\n\n" +
+        "### 手动查找步骤\n请用序号列出详细的搜索步骤，所有链接必须使用Markdown超链接格式，确保可以直接点击：\n" +
+        "1. 第一步描述 [关键词](搜索链接)\n" +
+        "2. 第二步描述 [关键词](搜索链接)\n" +
+        "3. ...\n\n" +
+        "请确保所有链接都是完整的URL格式，能够直接点击访问。";
 
         return formattedText;
     }
