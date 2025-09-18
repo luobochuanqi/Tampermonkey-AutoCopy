@@ -3,7 +3,7 @@
 // @namespace    http://tampermonkey.net/
 // @version      1.4
 // @description  在页面右侧添加复制按钮，点击后复制题目和选项到剪贴板，并添加AI提示词
-// @author       ChatECNU
+// @author       luobochuanqi, ChatECNU
 // @match        https://js.zhixinst.com/exam/exam*
 // @grant        GM_setClipboard
 // @grant        GM_notification
