@@ -1,6 +1,6 @@
 # AIPlus AutoCopy
 
-AIPlus AutoCopy 是一个基于 Tampermonkey 的用户脚本，旨在自动复制网页上的 AI 生成内容。该脚本可以帮助用户在使用各类 AI 平台（如 ChatGPT、Bing AI 等）时，自动检测并复制生成的文本，提升内容整理和归档的效率。适用于需要频繁保存 AI 输出结果的用户。
+AIPlus AutoCopy 是一个基于 Tampermonkey 的用户脚本，旨在自动复制网页上的 题目 和 选项。该脚本可以帮助用户在使用各类 AI 平台（如 ChatGPT、Bing AI 等）时，帮助用户复制和生成文本，提升内容整理和归档的效率。适用于需要频繁使用 AI 输出答案结果的用户。
 
 **主要功能：**
 - 自动检测并复制 AI 生成的文本内容
