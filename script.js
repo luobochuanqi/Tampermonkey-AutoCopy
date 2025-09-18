@@ -153,7 +153,7 @@
 
     // 格式化题目和选项内容
     function formatContent(question, options) {
-        let formattedText = `你是一个网络信息检索大师，你可以从各式各样的资料网站深入检索信息\n\n## 题目\n${question}\n\n## 选项\n`;
+        let formattedText = `你是一个网络信息检索大师，你可以通过搜索引擎或各式各样的资料网站深入检索信息\n\n## 题目\n${question}\n\n## 选项\n`;
 
         options.forEach(option => {
             formattedText += `**${option.letter}.** ${option.text}\n`;
