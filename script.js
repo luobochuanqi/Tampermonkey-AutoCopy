@@ -1,12 +1,13 @@
 // ==UserScript==
-// @name         题目与选项自动复制工具
+// @name         题目与选项复制工具（右侧按钮版）
 // @namespace    http://tampermonkey.net/
-// @version      1.1
-// @description  自动识别页面题目和选项，点击下一题后复制到剪贴板
+// @version      1.2
+// @description  在页面右侧添加复制按钮，点击后复制题目和选项到剪贴板
 // @author       ChatECNU
 // @match        https://js.zhixinst.com/exam/exam*
 // @grant        GM_setClipboard
 // @grant        GM_notification
+// @grant        GM_addStyle
 // ==/UserScript==
 
 (function() {
@@ -14,80 +15,92 @@
 
     // 配置选项
     const config = {
-        nextButtonSelector: '.btn.next-btn', // 下一题按钮选择器
         questionContainerSelector: '.question-main', // 题目容器选择器
         questionTitleSelector: '.question-title div', // 题目文本选择器
         optionsContainerSelector: '.question-options', // 选项容器选择器
         optionItemSelector: '.options-list', // 单个选项选择器
         optionLetterSelector: '.options-raido', // 选项字母选择器
-        observerTimeout: 3000, // 观察超时时间(毫秒)
         notificationTimeout: 2000 // 通知显示时间(毫秒)
     };
+
+    // 添加自定义样式
+    GM_addStyle(`
+        #tm-copy-button {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            z-index: 9999;
+            padding: 12px 16px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+        
+        #tm-copy-button:hover {
+            background-color: #45a049;
+            transform: translateY(-50%) scale(1.05);
+        }
+        
+        #tm-copy-button:active {
+            transform: translateY(-50%) scale(0.95);
+        }
+        
+        #tm-copy-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            background: #4caf50;
+            color: white;
+            border-radius: 4px;
+            z-index: 10000;
+            font-family: Arial, sans-serif;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            transition: opacity 0.3s;
+        }
+    `);
 
     // 主函数 - 初始化脚本
     function init() {
         // 等待页面加载完成
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', setupButtonListener);
+            document.addEventListener('DOMContentLoaded', createCopyButton);
         } else {
-            setupButtonListener();
+            createCopyButton();
         }
     }
 
-    // 设置下一题按钮监听器
-    function setupButtonListener() {
-        const nextButton = document.querySelector(config.nextButtonSelector);
-
-        if (!nextButton) {
-            console.log('未找到下一题按钮，将在1秒后重试...');
-            setTimeout(setupButtonListener, 1000);
-            return;
+    // 创建复制按钮
+    function createCopyButton() {
+        // 移除可能已存在的按钮
+        const existingButton = document.getElementById('tm-copy-button');
+        if (existingButton) {
+            existingButton.remove();
         }
 
-        // 移除可能已存在的事件监听器（避免重复绑定）
-        nextButton.removeEventListener('click', handleNextButtonClick);
-        // 添加点击事件监听，使用 {capture: true} 确保在默认行为前触发
-        nextButton.addEventListener('click', handleNextButtonClick, {capture: true});
+        // 创建新按钮
+        const copyButton = document.createElement('button');
+        copyButton.id = 'tm-copy-button';
+        copyButton.textContent = '复制题目';
+        copyButton.addEventListener('click', handleCopyButtonClick);
 
-        console.log('已成功监听下一题按钮');
+        // 添加到页面
+        document.body.appendChild(copyButton);
+        
+        console.log('复制按钮已添加到页面右侧');
     }
 
-    // 处理下一题按钮点击事件
-    function handleNextButtonClick(event) {
-        console.log('检测到下一题按钮点击，等待新题目加载...');
-
-        // 设置观察器来检测题目区域的变化
-        const questionContainer = document.querySelector(config.questionContainerSelector);
-
-        if (!questionContainer) {
-            console.error('未找到题目容器');
-            showNotification('错误', '未找到题目区域', 'error');
-            return;
-        }
-
-        // 创建MutationObserver来检测DOM变化
-        const observer = new MutationObserver(function(mutations) {
-            // 当检测到变化时，尝试提取题目和选项
-            observer.disconnect(); // 停止观察
-
-            // 添加短暂延迟确保内容完全加载
-            setTimeout(() => {
-                extractAndCopyContent();
-            }, 300);
-        });
-
-        // 配置并启动观察器
-        observer.observe(questionContainer, {
-            childList: true,
-            subtree: true,
-            characterData: true
-        });
-
-        // 设置超时，防止观察器永远不触发
-        setTimeout(() => {
-            observer.disconnect();
-            extractAndCopyContent();
-        }, config.observerTimeout);
+    // 处理复制按钮点击事件
+    function handleCopyButtonClick() {
+        console.log('复制按钮被点击，开始提取内容...');
+        extractAndCopyContent();
     }
 
     // 提取题目和选项内容并复制到剪贴板
@@ -178,19 +191,7 @@
         const message = document.createElement('div');
         message.id = 'tm-copy-message';
         message.textContent = text;
-        message.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 12px 20px;
-            background: ${type === 'success' ? '#4caf50' : '#f44336'};
-            color: white;
-            border-radius: 4px;
-            z-index: 10000;
-            font-family: Arial, sans-serif;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-            transition: opacity 0.3s;
-        `;
+        message.style.backgroundColor = type === 'success' ? '#4caf50' : '#f44336';
 
         document.body.appendChild(message);
 
