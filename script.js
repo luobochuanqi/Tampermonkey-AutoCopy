@@ -1,9 +1,11 @@
 // ==UserScript==
 // @name         题目与选项复制工具（右侧按钮版）
 // @namespace    http://tampermonkey.net/
-// @version      1.4
+// @version      1.5
 // @description  在页面右侧添加复制按钮，点击后复制题目和选项到剪贴板，并添加AI提示词
 // @author       luobochuanqi, ChatECNU
+// @updateURL    https://github.com/luobochuanqi/Tampermonkey-AutoCopy/raw/refs/heads/main/script.js
+// @downloadURL  https://github.com/luobochuanqi/Tampermonkey-AutoCopy/raw/refs/heads/main/script.js
 // @match        https://js.zhixinst.com/exam/exam*
 // @grant        GM_setClipboard
 // @grant        GM_notification
@@ -151,7 +153,7 @@
 
     // 格式化题目和选项内容
     function formatContent(question, options) {
-        let formattedText = `## 题目\n${question}\n\n## 选项\n`;
+        let formattedText = `你是一个网络信息检索大师，你可以从各式各样的资料网站深入检索信息\n\n## 题目\n${question}\n\n## 选项\n`;
 
         options.forEach(option => {
             formattedText += `**${option.letter}.** ${option.text}\n`;
